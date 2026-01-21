@@ -2,12 +2,36 @@
 
 🤖 **BYOToken** - A browser extension that uses AI to help solve Edgenuity questions with one click.
 
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [AI Models](#ai-models)
+- [AI Chat Mode](#ai-chat-mode)
+- [Screenshot-Based Solving](#screenshot-based-solving)
+- [Interactive Element Recognition](#interactive-element-recognition)
+- [DOM Interaction Tools](#dom-interaction-tools)
+- [AI Tool Calling](#ai-tool-calling)
+- [Excluded UI Elements](#excluded-ui-elements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Privacy](#privacy)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Changelog](#changelog)
+- [License](#license)
+
+---
+
 ## Features
 
 - ✨ **One-Click Solving** - Floating button on every Edgenuity page
-- � **AI Chat Mode** - Interactive chat with the AI for follow-up questions and clarifications
-- �🔐 **BYOToken** - Bring Your Own Token (use your own OpenRouter API key)
-- 🎯 **Smart Model Selection** - 6 specialized AI models for different question types
+- 💬 **AI Chat Mode** - Interactive chat with the AI for follow-up questions and clarifications
+- 🔐 **BYOToken** - Bring Your Own Token (use your own OpenRouter API key)
+- 🎯 **Smart Model Selection** - 7 specialized AI models for different question types
 - 📸 **Screenshot-Based Vision Solving** - Automatically uses screenshots for visual/interactive questions
 - 🧮 **Math Tool Calling** - Built-in calculator, unit converter, and equation solver
 - 📊 **Graph & Interactive Recognition** - Automatically detects and describes graphs, dropdowns, checkboxes, and input fields
@@ -18,15 +42,24 @@
 
 ## AI Models
 
-| Model | Best For | Icon |
-|-------|----------|------|
-| **Balanced** (Default) | General questions | ⚖️ |
-| **Writing Expert** | Essays, English | ✍️ |
-| **Reasoning Pro** | Complex problems | 🧠 |
-| **Deep Thinker** | Advanced reasoning | 🔬 |
-| **Math Wizard** | Math, STEM, calculations | 🔢 |
-| **Speed Demon** | Quick answers | ⚡ |
-| **Vision Solver** | Screenshots, graphs, interactive elements | 👁️ |
+The extension supports **7 specialized AI models** via [OpenRouter](https://openrouter.ai). Choose the best model for your question type:
+
+| Icon | Model | OpenRouter ID | Best For | Cost (per 1M tokens) |
+|------|-------|---------------|----------|---------------------|
+| ⚖️ | **Balanced** (Default) | `google/gemini-2.5-flash-lite` | General questions, fast & accurate | ~$0.075 input / $0.30 output |
+| ✍️ | **Writing Expert** | `anthropic/claude-sonnet-4` | Essays, English, long-form writing | ~$3.00 input / $15.00 output |
+| 🧠 | **Reasoning Pro** | `openai/gpt-4o` | Complex problems, logic, analysis | ~$2.50 input / $10.00 output |
+| 🔬 | **Deep Thinker** | `google/gemini-2.5-pro` | Very complex problems, advanced reasoning | ~$1.25 input / $10.00 output |
+| 🔢 | **Math Wizard** | `qwen/qwen3-235b-a22b` | Mathematics, calculations, STEM | ~$0.20 input / $0.80 output |
+| ⚡ | **Speed Demon** | `meta-llama/llama-4-maverick` | Fastest responses when time matters | ~$0.20 input / $0.60 output |
+| 👁️ | **Vision Solver** | `google/gemini-2.5-flash` | Screenshots, graphs, interactive elements | ~$0.15 input / $0.60 output |
+
+> 💡 **Tip:** Prices are approximate and may vary. Check [OpenRouter pricing](https://openrouter.ai/models) for current rates. The **Balanced** model is the most cost-effective for everyday use.
+
+### Model Selection
+
+- **Auto-detect** (recommended): The extension automatically selects the best model based on question type keywords
+- **Manual**: Choose a specific model from the popup settings
 
 ## AI Chat Mode
 
