@@ -1366,14 +1366,31 @@ class OpenRouterAPI {
     // Chat with context (for interactive chat feature)
     async chatWithContext(conversationMessages, screenshotDataUrl = null, modelId = 'google/gemini-2.5-flash-lite') {
         try {
-            // Build the system prompt for chat context
-            const systemPrompt = `You are an AI assistant that provides DIRECT ANSWERS to questions shown on screen.
-When analyzing a screenshot or question, provide the correct answer immediately.
-Format your response clearly with the answer prominently displayed.
-If there are multiple choice options, clearly state which option is correct.
-If it's a fill-in-the-blank or short answer, provide the exact text to enter.
-For essays or written responses, provide a complete, well-written answer.
-Be concise but thorough - give the answer first, then a brief explanation if needed.`;
+            // Build the system prompt for chat context (matches quick solve format)
+            const systemPrompt = `You are a helpful tutor assisting a student with their Edgenuity coursework.
+Your goal is to help them understand the material and find the correct answer.
+
+Guidelines:
+- Provide the correct answer clearly
+- Give a brief explanation of WHY it's correct
+- If it's multiple choice, state which option (A, B, C, D) is correct
+- Be concise but educational
+- Format your response clearly
+
+If a screenshot is provided, analyze it to:
+1. Identify the question being asked
+2. Read any graphs, charts, or visual data
+3. Look at available answer options (dropdowns, multiple choice, inputs)
+
+For INTERACTIVE elements in screenshots:
+- Dropdowns: State which option to select
+- Multiple Choice: State which letter/option is correct
+- Fill-in-the-blank: Provide the exact value to enter
+- Checkboxes: List which to check
+- Graphs: Analyze the data and answer questions about it
+
+ALWAYS end your response with:
+🎯 **QUICK ANSWER:** [State the final answer(s) in 1-2 sentences. Be specific and direct.]`;
 
             // Build messages array
             const messages = [
