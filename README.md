@@ -5,13 +5,14 @@
 ## Features
 
 - ✨ **One-Click Solving** - Floating button on every Edgenuity page
-- 🔐 **BYOToken** - Bring Your Own Token (use your own OpenRouter API key)
+- � **AI Chat Mode** - Interactive chat with the AI for follow-up questions and clarifications
+- �🔐 **BYOToken** - Bring Your Own Token (use your own OpenRouter API key)
 - 🎯 **Smart Model Selection** - 6 specialized AI models for different question types
 - 📸 **Screenshot-Based Vision Solving** - Automatically uses screenshots for visual/interactive questions
 - 🧮 **Math Tool Calling** - Built-in calculator, unit converter, and equation solver
 - 📊 **Graph & Interactive Recognition** - Automatically detects and describes graphs, dropdowns, checkboxes, and input fields
-- 🎨 **Beautiful Dark UI** - Modern glassmorphism design
-- 📚 **History Tracking** - View previously solved questions
+- 🎨 **Beautiful Dark UI** - Modern glassmorphism design built with Preact
+- 📚 **History Tracking** - View previously solved questions and continue chat conversations
 - 🤖 **DOM Interaction Tools** - Click, select, and fill answers programmatically
 - ⏭️ **Auto-Skip** - Automatically proceed to next activity when complete
 
@@ -26,6 +27,15 @@
 | **Math Wizard** | Math, STEM, calculations | 🔢 |
 | **Speed Demon** | Quick answers | ⚡ |
 | **Vision Solver** | Screenshots, graphs, interactive elements | 👁️ |
+
+## AI Chat Mode
+
+The extension includes an **interactive AI chat** accessible via the 💬 button on the floating solve button:
+
+- 📸 **Optional Screenshot Context** - Toggle to include/exclude the current page screenshot
+- 💾 **Persistent Conversations** - Chat history is saved and can be continued later
+- 🔄 **Continue from History** - Resume previous chat conversations from the history panel
+- 🧹 **Clear Chat** - Start fresh with a new conversation
 
 ## Screenshot-Based Solving
 
@@ -143,21 +153,28 @@ The extension intelligently filters out UI noise to focus on actual question con
 
 1. Get your OpenRouter API key from [openrouter.ai/keys](https://openrouter.ai/keys)
 
-2. Load the extension in your browser:
+2. **Build the popup** (requires Node.js):
+   ```bash
+   npm install
+   npm run build
+   ```
+
+3. Load the extension in your browser:
    - **Chrome/Edge**: Go to `chrome://extensions/` or `edge://extensions/`
    - Enable "Developer mode"
    - Click "Load unpacked"
    - Select the `edgenuity-ai-solver` folder
 
-3. Click the extension icon and enter your API key
+4. Click the extension icon and enter your API key
 
 ## Usage
 
 1. Navigate to any Edgenuity lesson or quiz
 2. A floating **🤖 Solve** button appears in the bottom-right corner
 3. Click the button to get an AI-generated answer
-4. Copy the answer or close the overlay
-5. Use the **📚 History** button to view previously solved questions
+4. Use **💬** to open chat mode for follow-up questions
+5. Copy the answer or close the overlay
+6. Use the **📚 History** button to view previously solved questions or continue chats
 
 ### Hide Button
 
@@ -183,27 +200,82 @@ This extension:
 - ❌ Does NOT collect any data
 - ❌ Does NOT have a backend server
 
-## Files
+## Tech Stack
+
+- **Content Script**: Vanilla JavaScript for DOM manipulation
+- **Popup UI**: [Preact](https://preactjs.com/) with Vite for fast, lightweight builds
+- **Styling**: CSS with glassmorphism design
+- **Build**: Vite for popup bundling
+
+## Project Structure
 
 ```
 edgenuity-ai-solver/
-├── pageContext.js    # Injected script that runs in the page context to access Edgenuity's internal APIs (like `API.FrameChain.nextFrame()`) which are not available to content scripts directly.
-├── manifest.json     # Extension configuration, including permissions and web accessible resources.
-├── config.js         # Model & prompt configuration
-├── api.js            # OpenRouter API with tool calling
-├── content.js        # Page injection & question extraction
-├── content.css       # Floating button & overlay styles
-├── popup.html        # Settings popup
-├── popup.css         # Popup styling
-├── popup.js          # Popup logic
-├── background.js     # Service worker (screenshots)
-└── icons/            # Extension icons
-    ├── icon16.png
-    ├── icon48.png
-    └── icon128.png
+├── manifest.json       # Chrome extension manifest (MV3)
+├── config.js           # Model & prompt configuration
+├── api.js              # OpenRouter API with tool calling
+├── content.js          # Page injection, question extraction, chat UI
+├── content.css         # Floating button, overlay & chat styles
+├── background.js       # Service worker (screenshots)
+├── pageContext.js      # Injected script for Edgenuity APIs
+├── popup.html          # Popup entry point
+├── popup.css           # Popup styling
+├── src/
+│   └── popup/          # Preact popup source
+│       ├── main.jsx    # Preact entry point
+│       ├── App.jsx     # Main app component
+│       ├── components/ # UI components
+│       │   ├── Header.jsx
+│       │   ├── StatsCard.jsx
+│       │   ├── HistoryPanel.jsx
+│       │   ├── SettingsSection.jsx
+│       │   ├── ModelGrid.jsx
+│       │   └── AnswerModal.jsx
+│       └── hooks/      # Custom Preact hooks
+│           ├── useSettings.js
+│           └── useHistory.js
+├── dist/               # Built popup files
+├── icons/              # Extension icons
+│   ├── icon16.png
+│   ├── icon48.png
+│   └── icon128.png
+├── vite.config.js      # Vite configuration
+└── package.json        # Node dependencies
+```
+
+## Development
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Setup
+```bash
+npm install
+```
+
+### Build Popup
+```bash
+npm run build
+```
+
+### Development Mode
+```bash
+npm run dev
+```
+
+### Build for Distribution
+```bash
+npm run ext:build
 ```
 
 ## Changelog
+
+### v1.3.0 (2026-01-21)
+- 💬 Added AI Chat mode with persistent conversation history
+- 🎨 Migrated popup UI to Preact for better performance
+- 📚 Chat conversations are saved to history and can be continued
+- 📸 Optional screenshot toggle in chat mode
 
 ### v1.2.0 (2026-01-08)
 - ✨ Added DOM interaction tools (click, select, fill, sleep)
