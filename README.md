@@ -110,26 +110,83 @@ await autoFillAnswers({
 - ✅ Dispatches proper events (`change`, `input`, `click`)
 - ✅ Logs all actions to the console for debugging
 
-## Math Tools
+## AI Tool Calling
 
-The extension includes tool calling for math questions:
+The extension uses **function calling** to provide the AI with specialized tools. When the AI needs to perform calculations, interact with the page, or analyze data, it can invoke these tools automatically.
 
-- **Calculator** - Evaluates mathematical expressions
-- **Unit Converter** - Converts between units (inches, feet, liters, etc.)
-- **Equation Solver** - Solves algebraic equations
-- **Quadratic Solver** - Finds roots of quadratic equations
-- **Statistics** - Mean, median, mode, std deviation
-- **Geometry** - Area, volume, perimeter calculations
-- **Percentage Calculator** - Percent of, percent change, etc.
-- **Grade Calculator** - Weighted averages, needed scores
+### 🖱️ Browser Interaction Tools
 
-## Interactive Analysis Tools
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `click_element` | Click an element on the page (button, link, radio, checkbox) | `selectorOrText`: ID, CSS selector, or visible text of element |
+| `select_option` | Select an option from a dropdown menu | `selector`: Dropdown ID/selector, `value`: Option value or text |
+| `type_text` | Type text into an input field or textarea | `selector`: Input ID/selector, `text`: Text to type |
 
-For interactive questions with graphs and data:
+### 🧮 Math Tools
 
-- **Graph Analyzer** - Finds trends, rates of change, values at points
-- **Value Comparator** - Compares multiple values, finds relationships
-- **Table Interpreter** - Analyzes table data, finds patterns
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `calculator` | Evaluate mathematical expressions | `expression`: Math expression (e.g., `"sqrt(16)"`, `"15 * 24"`) |
+| `unit_converter` | Convert between units of measurement | `value`: Number, `from_unit`: Source unit, `to_unit`: Target unit |
+| `solve_equation` | Solve algebraic equations for a variable | `equation`: Equation string (e.g., `"2x + 5 = 15"`), `variable`: Variable to solve for |
+| `quadratic_solver` | Solve quadratic equations ax² + bx + c = 0 | `a`: Coefficient of x², `b`: Coefficient of x, `c`: Constant |
+| `calculate_percentage` | Perform percentage calculations | `operation`: `percent_of`, `what_percent`, `percent_change`, `add_percent`, `subtract_percent`, `value1`, `value2` |
+| `calculate_grade` | Calculate grades and weighted averages | `scores`: Array of grades, `weights`: Optional weights, `target_average`: Target grade, `upcoming_weight`: Weight of next score |
+| `statistics` | Calculate statistical measures | `numbers`: Array of numbers, `measure`: `mean`, `median`, `mode`, `range`, `std_dev`, `variance`, `sum`, or `all` |
+| `geometry_calculator` | Calculate geometric properties | `shape`: `circle`, `rectangle`, `triangle`, `sphere`, `cylinder`, `cone`, `cube`, `pyramid`, `dimensions`: Shape dimensions, `calculate`: `area`, `perimeter`, `volume`, `surface_area`, `all` |
+
+#### Supported Units
+
+**Volume:** `cubic_inches`, `cubic_feet`, `cubic_meters`, `liters`, `gallons`, `quarts`, `cups`, `milliliters`
+
+**Length:** `inches`, `feet`, `yards`, `miles`, `meters`, `centimeters`, `kilometers`
+
+**Mass:** `ounces`, `pounds`, `grams`, `kilograms`
+
+**Time:** `seconds`, `minutes`, `hours`, `days`
+
+### ✍️ Writing Tools
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `text_statistics` | Analyze text for word count, sentence count, reading level | `text`: Text to analyze |
+| `humanize_text` | Make AI-generated text sound more natural | `text`: Text to humanize |
+
+### 📊 Interactive Analysis Tools
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `analyze_graph_data` | Analyze graph data points for trends and key features | `xValues`: Array of x values, `yValues`: Array of y values, `operation`: `trend`, `rate_of_change`, `find_value_at_x`, `find_x_at_value`, `max`, `min`, `summary`, `target`: Target value for find operations |
+| `compare_values` | Compare values and determine relationships | `values`: Array of numbers, `labels`: Optional labels for each value |
+| `interpret_table` | Interpret table data to find patterns | `headers`: Column headers, `rows`: Table rows as arrays, `question`: What to find |
+
+### Tool Usage Example
+
+When you ask the AI to solve a math problem, it might internally call:
+
+```json
+{
+  "name": "calculator",
+  "arguments": {
+    "expression": "462 / 12 * 60"
+  }
+}
+```
+
+Or for a geometry question:
+
+```json
+{
+  "name": "geometry_calculator",
+  "arguments": {
+    "shape": "cylinder",
+    "dimensions": { "radius": 5, "height": 10 },
+    "calculate": "volume"
+  }
+}
+```
+
+The AI automatically selects the right tool based on the question type.
 
 ## Excluded UI Elements
 
