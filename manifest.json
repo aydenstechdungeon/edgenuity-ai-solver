@@ -1,0 +1,68 @@
+{
+  "manifest_version": 3,
+  "name": "Edgenuity AI Solver",
+  "version": "1.0.0",
+  "description": "AI-powered question solver for Edgenuity using OpenRouter",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "*://*.edgenuity.com/*",
+    "*://core.learn.edgenuity.com/*",
+    "*://r08.core.learn.edgenuity.com/*",
+    "*://learn.edgenuity.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.edgenuity.com/*",
+        "*://core.learn.edgenuity.com/*",
+        "*://r08.core.learn.edgenuity.com/*",
+        "*://learn.edgenuity.com/*"
+      ],
+      "js": [
+        "config.js",
+        "api.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "pageContext.js"
+      ],
+      "matches": [
+        "*://*.edgenuity.com/*",
+        "*://core.learn.edgenuity.com/*",
+        "*://r08.core.learn.edgenuity.com/*",
+        "*://learn.edgenuity.com/*"
+      ]
+    }
+  ]
+}
