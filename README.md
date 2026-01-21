@@ -54,7 +54,27 @@ The extension supports **7 specialized AI models** via [OpenRouter](https://open
 | ⚡ | **Speed Demon** | `meta-llama/llama-4-maverick` | Fastest responses when time matters | ~$0.20 input / $0.60 output |
 | 👁️ | **Vision Solver** | `google/gemini-2.5-flash` | Screenshots, graphs, interactive elements | ~$0.15 input / $0.60 output |
 
-> 💡 **Tip:** Prices are approximate and may vary. Check [OpenRouter pricing](https://openrouter.ai/models) for current rates. The **Balanced** model is the most cost-effective for everyday use.
+### 💰 Cost Per Question Estimate
+
+Real-world cost estimates based on typical Edgenuity questions:
+
+| Model | Text-Only Question | With Screenshot | Notes |
+|-------|-------------------|-----------------|-------|
+| ⚖️ **Balanced** | ~$0.0002 | ~$0.0005 | Best value, recommended for most use |
+| ✍️ **Writing Expert** | ~$0.008 | ~$0.02 | Use for essays only |
+| 🧠 **Reasoning Pro** | ~$0.006 | ~$0.015 | Good for complex multi-step problems |
+| 🔬 **Deep Thinker** | ~$0.004 | ~$0.01 | Advanced reasoning when needed |
+| 🔢 **Math Wizard** | ~$0.0006 | ~$0.0015 | Great for STEM at low cost |
+| ⚡ **Speed Demon** | ~$0.0005 | ~$0.0012 | Fast and affordable |
+| 👁️ **Vision Solver** | ~$0.0004 | ~$0.001 | Optimized for visual questions |
+
+**Assumptions:**
+- Text-only: ~1,000 input tokens (question + system prompt) + ~300 output tokens
+- With screenshot: ~3,000 input tokens (includes base64 image) + ~400 output tokens  
+
+> 💡 **Example:** Solving 100 questions with screenshots using the **Balanced** model costs approximately **$0.05** (5 cents). You can solve ~20,000 questions per $1 of API credit!
+
+> ⚠️ **Note:** Prices are approximate and may vary. Check [OpenRouter pricing](https://openrouter.ai/models) for current rates.
 
 ### Model Selection
 
