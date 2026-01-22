@@ -488,6 +488,14 @@ npm run ext:build
 
 ## Changelog
 
+### v1.4.0 (2026-01-22)
+- 📖 **Beginner's Installation Guide** - Step-by-step instructions for Node.js, GitHub downloads, and browser setup
+- ⏭️ **Improved Auto-Skip** - Enhanced API detection across iframes, stageFrame, and parent windows
+- 🧭 **Smart Navigation** - Automatic frame/activity advancement with multiple fallback methods
+- 🎬 **Video & Audio Controls** - Added playback speed control and skip functionality
+- 💬 **Chat Prompt Improvements** - AI now provides direct answers with tutor-style explanations
+- 📦 **Build Optimization** - Consolidated distribution files with single CSS bundle
+
 ### v1.3.0 (2026-01-21)
 - 💬 Added AI Chat mode with persistent conversation history
 - 🎨 Migrated popup UI to Preact for better performance
