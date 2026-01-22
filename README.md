@@ -270,7 +270,7 @@ The extension intelligently filters out UI noise to focus on actual question con
    ```
 
 3. Load the extension in your browser:
-   - **Chrome/Edge**: Go to `chrome://extensions/` or `edge://extensions/`
+   - **Chrome/Edge**(Brave & Opera fall under the Chrome umbrella): Go to `chrome://extensions/` or `edge://extensions/`
    - Enable "Developer mode"
    - Click "Load unpacked"
    - Select the `edgenuity-ai-solver` folder
