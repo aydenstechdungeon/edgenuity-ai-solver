@@ -2116,6 +2116,13 @@
         autoSkipEnabled = true;
         console.log('[Edgenuity AI] Auto-skip enabled');
         console.log('[Edgenuity AI] Setting up auto-skip...');
+
+        // Inject the page context script early to enable API access
+        injectPageContextScript();
+
+        // Setup completion listener to catch events from page context
+        setupCompletionListener();
+
         setupVideoMonitor();
         setupIframeMonitor();
         setupKnockoutMonitor();
@@ -2727,9 +2734,17 @@
     }
 
     // Handle video ended event
-    function handleVideoEnded() {
+    async function handleVideoEnded() {
         if (!settings.autoSkipOnFinish) return;
         console.log('[Edgenuity AI] Video ended - attempting auto-skip');
+
+        // Try to stop any playing audio that might block navigation
+        try {
+            await audioControl('stop');
+        } catch (e) {
+            // Audio control is optional, don't let it block the skip
+        }
+
         showAutoSkipNotification('Video completed! Moving to next...');
         setTimeout(() => attemptAutoSkipWithRetries(), 1500);
     }
@@ -2862,28 +2877,123 @@
 
     // Flag to track if page context script is injected
     let pageContextInjected = false;
+    let pageContextReady = false;
 
     // Inject the page context script (runs in page context, not sandbox)
     function injectPageContextScript() {
-        if (pageContextInjected) return true;
+        if (pageContextInjected) return Promise.resolve(pageContextReady);
 
-        try {
-            const script = document.createElement('script');
-            script.src = chrome.runtime.getURL('pageContext.js');
-            script.onload = function () {
-                console.log('[Edgenuity AI] Page context script loaded');
-                pageContextInjected = true;
-                this.remove();
-            };
-            script.onerror = function () {
-                console.error('[Edgenuity AI] Failed to load page context script');
-            };
-            (document.head || document.documentElement).appendChild(script);
-            return true;
-        } catch (e) {
-            console.error('[Edgenuity AI] Failed to inject page context script:', e);
-            return false;
-        }
+        return new Promise((resolve) => {
+            try {
+                const script = document.createElement('script');
+                script.src = chrome.runtime.getURL('pageContext.js');
+                script.onload = function () {
+                    console.log('[Edgenuity AI] Page context script loaded');
+                    pageContextInjected = true;
+                    pageContextReady = true;
+                    this.remove();
+                    resolve(true);
+                };
+                script.onerror = function () {
+                    console.error('[Edgenuity AI] Failed to load page context script');
+                    pageContextInjected = true;
+                    pageContextReady = false;
+                    resolve(false);
+                };
+                (document.head || document.documentElement).appendChild(script);
+            } catch (e) {
+                console.error('[Edgenuity AI] Failed to inject page context script:', e);
+                resolve(false);
+            }
+        });
+    }
+
+    // Generic function to call page context API and wait for result
+    function callPageContextAPI(eventName, resultEventName, detail = null, timeout = 1000) {
+        return new Promise(async (resolve) => {
+            try {
+                // Ensure page context is loaded
+                await injectPageContextScript();
+
+                if (!pageContextReady) {
+                    resolve({ success: false, reason: 'Page context not ready' });
+                    return;
+                }
+
+                // Setup listener for result
+                const handler = (e) => {
+                    window.removeEventListener(resultEventName, handler);
+                    resolve(e.detail || { success: false });
+                };
+
+                window.addEventListener(resultEventName, handler);
+
+                // Timeout safety
+                setTimeout(() => {
+                    window.removeEventListener(resultEventName, handler);
+                    resolve({ success: false, reason: 'Timeout' });
+                }, timeout);
+
+                // Dispatch the event
+                console.log(`[Edgenuity AI] Dispatching ${eventName} event`);
+                const event = detail
+                    ? new CustomEvent(eventName, { detail })
+                    : new CustomEvent(eventName);
+                window.dispatchEvent(event);
+            } catch (e) {
+                console.log(`[Edgenuity AI] Failed to dispatch ${eventName}:`, e);
+                resolve({ success: false, reason: e.message });
+            }
+        });
+    }
+
+    // Get API state from page context
+    function getAPIState() {
+        return callPageContextAPI('eai-get-state', 'eai-get-state-result', null, 500);
+    }
+
+    // Smart navigation - automatically determine best action
+    function smartNavigation() {
+        return callPageContextAPI('eai-smart-nav', 'eai-smart-nav-result', null, 1500);
+    }
+
+    // Navigate to next activity
+    function nextActivity() {
+        return callPageContextAPI('eai-next-activity', 'eai-next-activity-result', null, 1500);
+    }
+
+    // Complete current frame
+    function completeFrame() {
+        return callPageContextAPI('eai-complete-frame', 'eai-complete-frame-result', null, 1500);
+    }
+
+    // Complete entire FrameChain
+    function completeChain() {
+        return callPageContextAPI('eai-complete-chain', 'eai-complete-chain-result', null, 1500);
+    }
+
+    // Video control (skip or speed up)
+    function videoControl(action = 'skip') {
+        return callPageContextAPI('eai-video-control', 'eai-video-control-result', { action }, 500);
+    }
+
+    // Audio control (stop)
+    function audioControl(action = 'stop') {
+        return callPageContextAPI('eai-audio-control', 'eai-audio-control-result', { action }, 500);
+    }
+
+    // Listen for completion detection from page context
+    function setupCompletionListener() {
+        window.addEventListener('eai-completion-detected', (e) => {
+            const status = e.detail?.status;
+            console.log('[Edgenuity AI] Completion detected from page context:', status);
+
+            if (settings.autoSkipOnFinish) {
+                if (status === 'chain_complete' || status === 'activity_complete') {
+                    handleActivityComplete();
+                }
+            }
+        });
     }
 
     // Call API.FrameChain.nextFrame() via page context
@@ -2928,60 +3038,85 @@
 
     // Click the next button
     async function clickNextButton(suppressNotification = false) {
-        // Check if navigation is blocked by a disabled Next button
-        // If we see a Next button but it's disabled, we shouldn't force skip with the API
-        const nextBtn = findNextButton();
-        if (nextBtn) {
-            const isAbled = !nextBtn.disabled &&
-                !nextBtn.classList.contains('disabled') &&
-                nextBtn.getAttribute('aria-disabled') !== 'true';
+        // IMPORTANT: Try API-based navigation FIRST before checking button state
+        // The outer "Next Activity" button may be disabled while we're inside a FrameChain,
+        // but API.FrameChain.nextFrame() can still advance to the next frame.
 
-            if (!isAbled) {
-                console.log('[Edgenuity AI] Next button found but disabled - activity not advancable');
-                return false;
-            }
-        }
-
-        // Prioritize using API.FrameChain.nextFrame() - more reliable for Edgenuity
-        // Content scripts can't access page globals directly, so we inject a script
-        console.log('[Edgenuity AI] Attempting API.FrameChain.nextFrame()');
-        if (await injectFrameChainCall()) {
+        // Try smart navigation first - this intelligently determines the best action
+        // (next frame, complete chain, or next activity)
+        console.log('[Edgenuity AI] Attempting smart navigation...');
+        const smartResult = await smartNavigation();
+        if (smartResult.success) {
+            console.log('[Edgenuity AI] Smart navigation successful:', smartResult.method);
             return true;
         }
+        console.log('[Edgenuity AI] Smart navigation failed:', smartResult.reason);
 
-        // Fallback: try to find and click button directly
-        // We already found it above
-        if (nextBtn && !nextBtn.disabled && !nextBtn.classList.contains('disabled')) {
-            console.log('[Edgenuity AI] Clicking next button as fallback');
-            nextBtn.click();
+        // Fallback: try basic next frame call
+        console.log('[Edgenuity AI] Trying basic nextFrame...');
+        const frameResult = await callPageContextAPI('eai-next-frame', 'eai-next-frame-result', null, 1000);
+        if (frameResult.success) {
+            console.log('[Edgenuity AI] Basic nextFrame successful');
             return true;
         }
+        console.log('[Edgenuity AI] Basic nextFrame failed:', frameResult.reason);
 
-        // Try injecting into iframes (already falls through from here)
+        // Try injecting into iframes BEFORE button fallback
+        // This is important because the API object is often in the iframe
         console.log('[Edgenuity AI] Main page API not available, trying iframes');
-
-        // Try to inject into iframes as well
         const iframes = document.querySelectorAll('#stageFrame, iframe[name="stageFrame"], iframe');
+
         for (const iframe of iframes) {
             try {
                 const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
                 if (iframeDoc) {
-                    // Inject external script into iframe (CSP-compliant)
-                    const script = iframeDoc.createElement('script');
-                    script.src = chrome.runtime.getURL('pageContext.js');
-                    script.onload = function () {
-                        console.log('[Edgenuity AI] Page context script loaded in iframe');
-                        // Dispatch event in iframe context
-                        iframe.contentWindow.dispatchEvent(new CustomEvent('eai-next-frame'));
-                        this.remove();
-                    };
-                    (iframeDoc.head || iframeDoc.documentElement).appendChild(script);
-                    console.log('[Edgenuity AI] Injecting page context script into iframe');
-                    return true;
+                    // Check if pageContext script is already loaded
+                    const existingScript = iframeDoc.querySelector('script[src*="pageContext.js"]');
+                    if (!existingScript) {
+                        // Inject external script into iframe (CSP-compliant)
+                        const script = iframeDoc.createElement('script');
+                        script.src = chrome.runtime.getURL('pageContext.js');
+                        script.onload = function () {
+                            console.log('[Edgenuity AI] Page context script loaded in iframe');
+                            // Try smart navigation in iframe context
+                            iframe.contentWindow.dispatchEvent(new CustomEvent('eai-smart-nav'));
+                            this.remove();
+                        };
+                        (iframeDoc.head || iframeDoc.documentElement).appendChild(script);
+                        console.log('[Edgenuity AI] Injecting page context script into iframe');
+                    } else {
+                        // Script already loaded, just dispatch event
+                        iframe.contentWindow.dispatchEvent(new CustomEvent('eai-smart-nav'));
+                        console.log('[Edgenuity AI] Dispatching smart-nav to iframe');
+                    }
+
+                    // Also try to find and click FrameRight button in iframe
+                    const frameRight = iframeDoc.querySelector('.FrameRight, li.FrameRight');
+                    if (frameRight) {
+                        console.log('[Edgenuity AI] Found FrameRight button in iframe, clicking...');
+                        frameRight.click();
+                        return true;
+                    }
                 }
             } catch (e) {
                 // Cross-origin iframe
-                console.log('[Edgenuity AI] Cannot inject into iframe (cross-origin)');
+                console.log('[Edgenuity AI] Cannot access iframe (cross-origin):', e.message);
+            }
+        }
+
+        // Fallback: try to find and click button directly (DOM approach)
+        const nextBtn = findNextButton();
+        if (nextBtn) {
+            const isEnabled = !nextBtn.disabled &&
+                !nextBtn.classList.contains('disabled') &&
+                nextBtn.getAttribute('aria-disabled') !== 'true';
+
+            if (isEnabled) {
+                console.log('[Edgenuity AI] Clicking next button as fallback');
+                nextBtn.click();
+                return true;
+            } else {
+                console.log('[Edgenuity AI] Next button found but disabled');
             }
         }
 

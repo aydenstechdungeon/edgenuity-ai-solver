@@ -261,21 +261,127 @@ The extension intelligently filters out UI noise to focus on actual question con
 
 ## Installation
 
-1. Get your OpenRouter API key from [openrouter.ai/keys](https://openrouter.ai/keys)
+### 🆕 Beginner's Installation Guide
 
-2. (**OPTIONAL** -- GOTO [RELEASES](https://github.com/aydenstechdungeon/edgenuity-ai-solver/releases) FOR THE PREBUILT EXTENSION) **Build the popup** (requires Node.js):
+Never used Node.js or GitHub before? No problem! Follow these detailed steps:
+
+---
+
+#### Step 1: Install Node.js
+
+Node.js is a tool that runs JavaScript code. You need it to build the extension.
+
+**🪟 Windows:**
+1. Go to [nodejs.org](https://nodejs.org/)
+2. Click the big green **"LTS"** (Long Term Support) button to download
+3. Run the downloaded installer (`node-vXX.X.X-x64.msi`)
+4. Click **Next** through the installer, keeping all default options
+5. ✅ Make sure "Add to PATH" is checked
+6. Click **Install** and wait for it to finish
+
+**🍎 macOS:**
+1. Go to [nodejs.org](https://nodejs.org/)
+2. Click the big green **"LTS"** button to download
+3. Run the downloaded `.pkg` file
+4. Follow the installer prompts
+
+**🐧 Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install nodejs npm
+```
+
+**Verify Installation:**
+Open a terminal (Windows: search for "Command Prompt" or "PowerShell") and type:
+```bash
+node --version
+```
+If you see a version number like `v20.x.x`, you're good to go! ✅
+
+---
+
+#### Step 2: Download the Extension
+
+**Option A: Download ZIP (Easiest)**
+1. Go to the [GitHub repository page](https://github.com/aydenstechdungeon/edgenuity-ai-solver)
+2. Click the green **"Code"** button
+3. Click **"Download ZIP"**
+4. Extract the ZIP file to a folder you'll remember (e.g., `Desktop` or `Documents`)
+
+**Option B: Using Git (For advanced users)**
+```bash
+git clone https://github.com/aydenstechdungeon/edgenuity-ai-solver.git
+cd edgenuity-ai-solver
+```
+
+---
+
+#### Step 3: Build the Extension
+
+1. **Open a Terminal/Command Prompt in the project folder:**
+   - **Windows:** Open the extracted folder, hold `Shift` + right-click, select "Open PowerShell window here" or "Open command window here"
+   - **macOS/Linux:** Open Terminal and use `cd` to navigate to the folder:
+     ```bash
+     cd ~/Desktop/edgenuity-ai-solver
+     ```
+
+2. **Install dependencies:**
    ```bash
    npm install
+   ```
+   Wait for it to finish (this may take a minute). You might see some warnings - that's normal!
+
+3. **Build the extension:**
+   ```bash
    npm run build
    ```
+   You should see a success message when it's done.
 
-3. Load the extension in your browser:
-   - **Chrome**(Brave & Opera fall under the Chrome umbrella)**/Edge**: Go to `chrome://extensions/` or `edge://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the `edgenuity-ai-solver` folder
+---
 
-4. Click the extension icon and enter your API key
+#### Step 4: Load the Extension in Your Browser
+
+**Chrome, Brave, Edge, or Opera:**
+
+1. Open your browser and go to:
+   - **Chrome/Brave/Opera:** `chrome://extensions/`
+   - **Edge:** `edge://extensions/`
+
+2. Enable **"Developer mode"** (toggle in the top-right corner)
+
+3. Click **"Load unpacked"**
+
+4. Navigate to and select the `edgenuity-ai-solver` folder (the one you extracted/downloaded)
+
+5. The extension icon should now appear in your browser toolbar! 🎉
+
+---
+
+#### Step 5: Get Your API Key
+
+1. Go to [openrouter.ai/keys](https://openrouter.ai/keys)
+2. Create an account or sign in
+3. Click **"Create Key"** to generate a new API key
+4. Copy your API key
+5. Click the Edgenuity AI Solver extension icon in your browser
+6. Paste your API key in the settings
+
+**You're all set!** 🚀
+
+---
+
+### 🚀 Quick Install (For Developers)
+
+If you're already familiar with Node.js and npm:
+
+```bash
+git clone https://github.com/aydenstechdungeon/edgenuity-ai-solver.git
+cd edgenuity-ai-solver
+npm install
+npm run build
+```
+
+Then load as an unpacked extension in Chrome/Edge.
 
 ## Usage
 
