@@ -263,7 +263,7 @@ The extension intelligently filters out UI noise to focus on actual question con
 
 1. Get your OpenRouter API key from [openrouter.ai/keys](https://openrouter.ai/keys)
 
-2. (OPTIONAL -- GOTO [RELEASES](https://github.com/aydenstechdungeon/edgenuity-ai-solver/releases) FOR THE PREBUILT EXTENSION) **Build the popup** (requires Node.js):
+2. (**OPTIONAL** -- GOTO [RELEASES](https://github.com/aydenstechdungeon/edgenuity-ai-solver/releases) FOR THE PREBUILT EXTENSION) **Build the popup** (requires Node.js):
    ```bash
    npm install
    npm run build
