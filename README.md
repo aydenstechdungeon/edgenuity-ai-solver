@@ -364,7 +364,8 @@ cd edgenuity-ai-solver
 3. Click **"Create Key"** to generate a new API key
 4. Copy your API key
 5. Click the Edgenuity AI Solver extension icon in your browser
-6. Paste your API key in the settings
+6&7. Paste your API key in the settings and add credits to your OpenRouter account
+
 
 **You're all set!** 🚀
 
